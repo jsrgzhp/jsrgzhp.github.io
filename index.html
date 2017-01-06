@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8"/>
+		<title>Frank Love Dingding</title>
+		<script type="text/javascript" src="scripts/addLoadEvent.js"></script>
+		<script type="text/javascript" src="scripts/showPic.js"></script>
+		<script type="text/javascript" src="scripts/d3.js"></script>
+		<style>
+
+			.chart div {
+			  font: 10px sans-serif;
+			  background-color: steelblue;
+			  text-align: right;
+			  padding: 3px;
+			  margin: 1px;
+			  color: white;
+			}
+			
+			.chart rect {
+			  fill: steelblue;
+			}
+
+			.chart text {
+			  fill: white;
+			  font: 10px sans-serif;
+			  text-anchor: end;
+			}
+			
+			.axis{
+				color:#000;
+			}
+			
+			.axis text {
+			  font: 10px sans-serif;
+			  color:black;
+			  fill:#000;
+			}
+
+			.axis path,
+			.axis line {
+			  fill: none;
+			  stroke: #000;
+			  shape-rendering: crispEdges;
+			}
+
+			path.Name{
+				fill:none;
+				stroke:DeepPink;
+				stroke-width:3;
+			}
+
+		</style>
+		
+	</head>
+	
+	<body>
+		<h1>Frank and Dingding</h1>
+		<p title="helloworld">Don't forget to buy this stuff.</p>
+		<a href="barchart2.html">Bar Chart 2</a>
+
+		<svg class="chart"></svg>
+		
+		<svg class="path" width="100%" height="100%" >
+
+
+		</svg>
+
+
+		<script>
+			var margin={top:20,right:30,bottom:30,left:40};
+			
+			var width=960-margin.left-margin.right,
+				height=500-margin.top-margin.bottom;
+			
+			var x=d3.scale.ordinal()
+					.rangeRoundBands([0,width],0.4);
+			
+			var y=d3.scale.linear()
+					.range([height,0]);
+			
+			
+			var chart=d3.select(".chart")
+						.attr("width",width+margin.left+margin.right)
+						.attr("height",height+margin.top+margin.bottom)
+						.append("g")
+						.attr("transform","translate("+margin.left+","+margin.top+")");
+
+			var xAxis=d3.svg.axis()
+						.scale(x)
+						.orient("bottom");
+						
+			var yAxis=d3.svg.axis()
+						.scale(y)
+						.orient("left");
+						
+			d3.tsv("data.tsv",type,function(error,data){
+				x.domain(data.map(function(d){return d.name;}));
+				y.domain([0,d3.max(data,function(d){return d.value;})]);
+				
+				var bar=chart.selectAll("g")
+							.data(data)
+						.enter().append("g")
+						.attr("transform",function(d,i){return "translate("+x(d.name)+",0)";});
+						
+				bar.append("rect")
+					.attr("height",function(d){return height - y(d.value);})
+					.attr("y",function(d){return y(d.value);})
+					.attr("width",x.rangeBand())
+					.on("mouseover",function(){
+						d3.select(this)
+							.attr("fill","red");
+					});
+					
+			d3.select(".chart")
+				.append("g")
+				.attr("class","x axis")
+				.attr("width",width)
+				.attr("transform","translate("+(margin.left)+","+(height+margin.top+2)+")")
+				.call(xAxis);
+			
+			d3.select(".chart")
+				.append("g")
+				.attr("class","y axis")
+				.attr("transform","translate("+margin.left+","+margin.top+")")
+				.call(yAxis);
+				
+			var line=d3.svg.line()
+						.x(function(d){return x(d.name);})
+						.y(function(d){return y(d.value);});
+				d3.select(".chart")
+					.append("path")
+					.attr("transform","translate("+(margin.left+x.rangeBand()/2)+","+(margin.top)+")")
+					.attr("d",line(data))
+					.attr("class","Name");
+				
+			});
+			
+			function type(d){
+				d.value = +d.value;
+				return d;
+			}
+		</script>
+		
+		
+	</body>
+		
+</html>
+		
